@@ -1,15 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import {
-  BadgeCheck,
-  Building2,
-  CheckCircle2,
-  Clock3,
-  Factory,
-  MoreHorizontal,
-  Search,
-} from "lucide-react";
+import { BadgeCheck, CheckCircle2, Clock3, Factory, MoreHorizontal, Search } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -41,6 +33,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import Link from "next/link";
+import { AppShell } from "@/components/app-shell";
 
 type BrandStatus = "Active" | "Paused" | "Review";
 
@@ -65,6 +59,12 @@ const BRAND_DATA: BrandRow[] = [
 ];
 
 const PAGE_SIZE = 5;
+const slugify = (value: string) =>
+  value
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "") || "brand";
 
 export default function BrandsPage() {
   const [search, setSearch] = useState("");
@@ -167,102 +167,94 @@ export default function BrandsPage() {
   );
 
   return (
-    <div className="flex min-h-screen flex-col bg-slate-50">
-      <div className="border-b bg-white">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-4">
-          <div className="flex items-center gap-3">
-            <div className="rounded-lg border bg-white p-2">
-              <Building2 className="h-4 w-4 text-muted-foreground" />
-            </div>
-            <div>
-              <p className="text-xs uppercase tracking-wider text-muted-foreground">Brands</p>
-              <h1 className="text-xl font-semibold leading-tight text-foreground">Brand inventory</h1>
-            </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" className="gap-2">
-              <BadgeCheck className="h-4 w-4" />
-              Verify
-            </Button>
-            <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-              <DialogTrigger asChild>
-                <Button size="sm">Add brand</Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Add brand</DialogTitle>
-                  <DialogDescription>Store locally for now; no backend calls.</DialogDescription>
-                </DialogHeader>
-                <form className="space-y-3" onSubmit={handleSubmit}>
+    <AppShell
+      title="Brand inventory"
+      subtitle="Brands"
+      actions={
+        <>
+          <Button variant="outline" size="sm" className="gap-2">
+            <BadgeCheck className="h-4 w-4" />
+            Verify
+          </Button>
+          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+            <DialogTrigger asChild>
+              <Button size="sm">Add brand</Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Add brand</DialogTitle>
+                <DialogDescription>Store locally for now; no backend calls.</DialogDescription>
+              </DialogHeader>
+              <form className="space-y-3" onSubmit={handleSubmit}>
+                <div className="space-y-1">
+                  <label className="text-sm font-medium">Brand Name</label>
+                  <Input
+                    required
+                    value={form.name}
+                    onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
+                    placeholder="Acme Labs"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-sm font-medium">Website</label>
+                  <Input
+                    type="url"
+                    value={form.website}
+                    onChange={(e) => setForm((f) => ({ ...f, website: e.target.value }))}
+                    placeholder="https://example.com"
+                  />
+                </div>
+                <div className="grid gap-3 sm:grid-cols-2">
                   <div className="space-y-1">
-                    <label className="text-sm font-medium">Brand Name</label>
+                    <label className="text-sm font-medium">Industry</label>
                     <Input
-                      required
-                      value={form.name}
-                      onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-                      placeholder="Acme Labs"
+                      value={form.industry}
+                      onChange={(e) => setForm((f) => ({ ...f, industry: e.target.value }))}
+                      placeholder="Retail, Fintech..."
                     />
                   </div>
                   <div className="space-y-1">
-                    <label className="text-sm font-medium">Website</label>
+                    <label className="text-sm font-medium">Target Market</label>
                     <Input
-                      type="url"
-                      value={form.website}
-                      onChange={(e) => setForm((f) => ({ ...f, website: e.target.value }))}
-                      placeholder="https://example.com"
+                      value={form.market}
+                      onChange={(e) => setForm((f) => ({ ...f, market: e.target.value }))}
+                      placeholder="US, EMEA, APAC..."
                     />
                   </div>
-                  <div className="grid gap-3 sm:grid-cols-2">
-                    <div className="space-y-1">
-                      <label className="text-sm font-medium">Industry</label>
-                      <Input
-                        value={form.industry}
-                        onChange={(e) => setForm((f) => ({ ...f, industry: e.target.value }))}
-                        placeholder="Retail, Fintech..."
-                      />
-                    </div>
-                    <div className="space-y-1">
-                      <label className="text-sm font-medium">Target Market</label>
-                      <Input
-                        value={form.market}
-                        onChange={(e) => setForm((f) => ({ ...f, market: e.target.value }))}
-                        placeholder="US, EMEA, APAC..."
-                      />
-                    </div>
+                </div>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <div className="space-y-1">
+                    <label className="text-sm font-medium">Geography</label>
+                    <Input
+                      value={form.geography}
+                      onChange={(e) => setForm((f) => ({ ...f, geography: e.target.value }))}
+                      placeholder="North America"
+                    />
                   </div>
-                  <div className="grid gap-3 sm:grid-cols-2">
-                    <div className="space-y-1">
-                      <label className="text-sm font-medium">Geography</label>
-                      <Input
-                        value={form.geography}
-                        onChange={(e) => setForm((f) => ({ ...f, geography: e.target.value }))}
-                        placeholder="North America"
-                      />
-                    </div>
-                    <div className="space-y-1">
-                      <label className="text-sm font-medium">Main Competitors</label>
-                      <Input
-                        value={form.competitors}
-                        onChange={(e) => setForm((f) => ({ ...f, competitors: e.target.value }))}
-                        placeholder="Competitor A, B"
-                      />
-                    </div>
+                  <div className="space-y-1">
+                    <label className="text-sm font-medium">Main Competitors</label>
+                    <Input
+                      value={form.competitors}
+                      onChange={(e) => setForm((f) => ({ ...f, competitors: e.target.value }))}
+                      placeholder="Competitor A, B"
+                    />
                   </div>
-                  <DialogFooter className="gap-2 sm:gap-0">
-                    <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>
-                      Cancel
-                    </Button>
-                    <Button type="submit">Save</Button>
-                  </DialogFooter>
-                </form>
-              </DialogContent>
-            </Dialog>
-          </div>
-        </div>
-      </div>
-
-      <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-4 px-5 py-5">
-        <Card className="bg-white">
+                </div>
+                <DialogFooter className="gap-2 sm:gap-0">
+                  <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>
+                    Cancel
+                  </Button>
+                  <Button type="submit">Save</Button>
+                </DialogFooter>
+              </form>
+            </DialogContent>
+          </Dialog>
+        </>
+      }
+      contentClassName="flex flex-col gap-4"
+    >
+      <div className="mx-auto w-full max-w-6xl space-y-4">
+        <Card className="bg-card">
           <CardHeader className="flex flex-col gap-3 space-y-0 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <CardTitle>Brand table</CardTitle>
@@ -291,7 +283,7 @@ export default function BrandsPage() {
             </div>
           </CardHeader>
           <CardContent className="space-y-3">
-            <div className="rounded-lg border">
+            <div className="rounded-lg border bg-card">
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -343,7 +335,9 @@ export default function BrandsPage() {
                             <DropdownMenuContent align="end">
                               <DropdownMenuLabel>Actions</DropdownMenuLabel>
                               <DropdownMenuSeparator />
-                              <DropdownMenuItem>View</DropdownMenuItem>
+                              <DropdownMenuItem asChild>
+                                <Link href={`/brands/${slugify(brand.name)}`}>View</Link>
+                              </DropdownMenuItem>
                               <DropdownMenuItem>Edit</DropdownMenuItem>
                               <DropdownMenuItem>Pause</DropdownMenuItem>
                               <DropdownMenuItem>Export</DropdownMenuItem>
@@ -388,7 +382,7 @@ export default function BrandsPage() {
           </CardContent>
         </Card>
 
-        <Card className="bg-white">
+        <Card className="bg-card">
           <CardHeader>
             <CardTitle>Processing capacity</CardTitle>
             <CardDescription>Placeholder utilization metrics.</CardDescription>
@@ -417,8 +411,8 @@ export default function BrandsPage() {
             </div>
           </CardContent>
         </Card>
-      </main>
-    </div>
+      </div>
+    </AppShell>
   );
 }
 
